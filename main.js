@@ -71,7 +71,7 @@
         y: -radius + 1, // center y coordinate
       },
       velocity: { x: 0, y: 0 },
-      radius: radius,
+      radius: radius
     };
   };
 
