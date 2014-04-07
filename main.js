@@ -67,8 +67,8 @@
     var radius = 7;
     return {
       center: {
-        x: canvas.width / 2, // center x coordinate
-        y: -radius + 1, // center y coordinate
+        x: canvas.width / 2,
+        y: -radius + 1,
       },
       velocity: { x: 0, y: 0 },
       radius: radius
