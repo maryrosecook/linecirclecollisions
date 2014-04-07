@@ -150,11 +150,11 @@
     var lineEnd2 = lineEnds(line)[1];
 
     // vector representing line surface
-    var vectorOfLine = {
+    var lineVector = {
       x: lineEnd2.x - lineEnd1.x,
       y: lineEnd2.y - lineEnd1.y
     };
-    var unitLine = unitVector(vectorOfLine);
+    var lineUnitVector = unitVector(lineVector);
 
     var lineEnd1ToCircle = {
       x: circle.center.x - lineEnd1.x,
@@ -164,17 +164,17 @@
     // project vector between line end and circle along
     // line to get distance between end and point
     // on line closest to circle
-    var projection = dotProduct(lineEnd1ToCircle, unitLine);
+    var projection = dotProduct(lineEnd1ToCircle, lineUnitVector);
 
     if (projection <= 0) {
       return lineEnd1; // off end of line - end is closest point
-    } else if (projection >= magnitude(vectorOfLine)) {
+    } else if (projection >= magnitude(lineVector)) {
       return lineEnd2; // ditto
     } else {
       // part way along line - return that point
       return {
-        x: lineEnd1.x + unitLine.x * projection,
-        y: lineEnd1.y + unitLine.y * projection
+        x: lineEnd1.x + lineUnitVector.x * projection,
+        y: lineEnd1.y + lineUnitVector.y * projection
       };
     }
   };
