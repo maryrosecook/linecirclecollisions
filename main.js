@@ -1,15 +1,10 @@
 ;(function(exports) {
-  var SCREEN_SIZE = { x: 480, y: 480 };
-
-  // sets up lines and circles and starts the animation
-  function start() {
-    // screen to draw on
-    var screen = document.getElementById("canvas").getContext('2d');
-
+  // creates lines and circles and starts the animation
+  function start(canvas) {
     // make new circle every so often
     var circles = [];
     setInterval(function() {
-      circles.push(makeCircle());
+      circles.push(makeCircle(canvas));
     }, 400);
 
     // make grid of lines
@@ -23,8 +18,8 @@
 
     // start update/draw loop
     function tick() {
-      update(circles, lines);
-      draw(circles, lines, screen);
+      update(circles, lines, canvas);
+      draw(circles, lines, canvas);
       requestAnimationFrame(tick);
     };
 
@@ -33,15 +28,15 @@
   exports.start = start; // make start function available to HTML page
 
   // rotates the lines, moves and bounces the circles
-  function update(circles, lines) {
+  function update(circles, lines, canvas) {
     for (var i = circles.length - 1; i >= 0; i--) {
       for (var j = 0; j < lines.length; j++) {
         bounceCircle(circles[i], lines[j]);
       }
 
       moveCircle(circles[i]);
-      if (!isCircleOnScreen(circles[i])) {
-        circles.splice(i, 1); // remove off-screen circle
+      if (!isCircleOnCanvas(circles[i], canvas)) {
+        circles.splice(i, 1); // remove circles that have left screen
       }
     }
 
@@ -50,27 +45,29 @@
     }
   };
 
-  function draw(circles, lines, screen) {
+  function draw(circles, lines, canvas) {
+    var ctx = canvas.getContext('2d');
+
     // fill screen with white
-    screen.fillStyle = "white";
-    screen.fillRect(0, 0, SCREEN_SIZE.x, SCREEN_SIZE.y);
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // draw circles
     for (var i = 0; i < circles.length; i++) {
-      drawCircle(circles[i], screen);
+      drawCircle(circles[i], ctx);
     }
 
     // draw lines
     for (var i = 0; i < lines.length; i++) {
-      drawLine(screen, lines[i]);
+      drawLine(lines[i], ctx);
     }
   };
 
-  function makeCircle() {
+  function makeCircle(canvas) {
     var radius = 7;
     return {
       center: {
-        x: SCREEN_SIZE.x / 2, // center x coordinate
+        x: 230, // center x coordinate
         y: -radius + 1, // center y coordinate
       },
       velocity: { x: 0, y: 0 },
@@ -125,26 +122,26 @@
     }];
   };
 
-  function drawLine(screen, line) {
+  function drawLine(line, ctx) {
     var end1 = lineEnds(line)[0];
     var end2 = lineEnds(line)[1];
 
-    screen.beginPath();
-    screen.lineWidth = 2;
-    screen.moveTo(end1.x, end1.y);
-    screen.lineTo(end2.x, end2.y);
-    screen.closePath();
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.moveTo(end1.x, end1.y);
+    ctx.lineTo(end2.x, end2.y);
+    ctx.closePath();
 
-    screen.strokeStyle = "black";
-    screen.stroke();
+    ctx.strokeStyle = "black";
+    ctx.stroke();
   };
 
-  function drawCircle(circle, screen) {
-    screen.beginPath();
-    screen.arc(circle.center.x, circle.center.y, circle.radius, 0, Math.PI * 2, true);
-    screen.closePath();
-    screen.fillStyle = "black";
-    screen.fill();
+  function drawCircle(circle, ctx) {
+    ctx.beginPath();
+    ctx.arc(circle.center.x, circle.center.y, circle.radius, 0, Math.PI * 2, true);
+    ctx.closePath();
+    ctx.fillStyle = "black";
+    ctx.fill();
   };
 
   // returns point on passed line closest to passed circle
@@ -220,11 +217,11 @@
     circle.center.y = circle.center.y + circle.velocity.y / 30;
   };
 
-  function isCircleOnScreen(circle) {
+  function isCircleOnCanvas(circle, canvas) {
     return circle.center.x > -circle.radius &&
-      circle.center.x < SCREEN_SIZE.x + circle.radius &&
+      circle.center.x < canvas.width + circle.radius &&
       circle.center.y > -circle.radius &&
-      circle.center.y < SCREEN_SIZE.y + circle.radius;
+      circle.center.y < canvas.height + circle.radius;
   };
 })(this);
 
