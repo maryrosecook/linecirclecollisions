@@ -68,7 +68,7 @@
     return {
       center: {
         x: canvas.width / 2,
-        y: -radius + 1,
+        y: -radius,
       },
       velocity: { x: 0, y: 0 },
       radius: radius
