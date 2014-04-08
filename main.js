@@ -106,7 +106,7 @@
   };
 
   // returns the points at the two ends of the passed line
-  function lineEnds(line) {
+  function lineEndPoints(line) {
     var angleRadians = line.angle * 0.01745;
     var lineUnitVector = unitVector({
       x: Math.cos(angleRadians) * 0 - Math.sin(angleRadians) * -1,
@@ -123,8 +123,8 @@
   };
 
   function drawLine(line, ctx) {
-    var end1 = lineEnds(line)[0];
-    var end2 = lineEnds(line)[1];
+    var end1 = lineEndPoints(line)[0];
+    var end2 = lineEndPoints(line)[1];
 
     ctx.beginPath();
     ctx.lineWidth = 2;
@@ -146,35 +146,35 @@
 
   // returns point on passed line closest to passed circle
   function pointOnLineClosestToCircle(circle, line) {
-    var lineEnd1 = lineEnds(line)[0];
-    var lineEnd2 = lineEnds(line)[1];
+    var lineEndPoint1 = lineEndPoints(line)[0];
+    var lineEndPoint2 = lineEndPoints(line)[1];
 
     // vector representing line surface
     var lineVector = {
-      x: lineEnd2.x - lineEnd1.x,
-      y: lineEnd2.y - lineEnd1.y
+      x: lineEndPoint2.x - lineEndPoint1.x,
+      y: lineEndPoint2.y - lineEndPoint1.y
     };
     var lineUnitVector = unitVector(lineVector);
 
-    var lineEnd1ToCircle = {
-      x: circle.center.x - lineEnd1.x,
-      y: circle.center.y - lineEnd1.y
+    var lineEndPoint1ToCircle = {
+      x: circle.center.x - lineEndPoint1.x,
+      y: circle.center.y - lineEndPoint1.y
     };
 
     // project vector between line end and circle along
     // line to get distance between end and point
     // on line closest to circle
-    var projection = dotProduct(lineEnd1ToCircle, lineUnitVector);
+    var projection = dotProduct(lineEndPoint1ToCircle, lineUnitVector);
 
     if (projection <= 0) {
-      return lineEnd1; // off end of line - end is closest point
+      return lineEndPoint1; // off end of line - end is closest point
     } else if (projection >= line.span) {
-      return lineEnd2; // ditto
+      return lineEndPoint2; // ditto
     } else {
       // part way along line - return that point
       return {
-        x: lineEnd1.x + lineUnitVector.x * projection,
-        y: lineEnd1.y + lineUnitVector.y * projection
+        x: lineEndPoint1.x + lineUnitVector.x * projection,
+        y: lineEndPoint1.y + lineUnitVector.y * projection
       };
     }
   };
