@@ -20,14 +20,14 @@
     }
     world.lines.splice(10, 2); // throw away top center lines
 
-    // start update/draw loop
+    // move shapes, draw shapes
     function tick() {
       update(world);
       draw(world, canvas);
-      requestAnimationFrame(tick);
+      requestAnimationFrame(tick); // queues next tick with browser
     };
 
-    tick();
+    tick(); // start update/draw loop
   };
   exports.start = start; // make start function available to HTML page
 
