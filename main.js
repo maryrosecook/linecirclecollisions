@@ -1,25 +1,29 @@
 ;(function(exports) {
   // creates lines and circles and starts the animation
   function start(canvas) {
+    var world = {
+      circles: [],
+      lines: [],
+      dimensions: { x: canvas.width, y: canvas.height }
+    };
+
     // make new circle every so often
-    var circles = [];
     setInterval(function() {
-      circles.push(makeCircle(canvas));
+      world.circles.push(makeCircle(world.dimensions.x / 2));
     }, 400);
 
     // make grid of lines
-    var lines = [];
     for (var i = 1; i < 6; i++) {
       for (var j = 1; j < 6; j++) {
-        lines.push(makeLine(i * 80, j * 80, i * j));
+        world.lines.push(makeLine(i * 80, j * 80, i * j));
       }
     }
-    lines.splice(10, 2); // throw away top center lines
+    world.lines.splice(10, 2); // throw away top center lines
 
     // start update/draw loop
     function tick() {
-      update(circles, lines, canvas);
-      draw(circles, lines, canvas);
+      update(world);
+      draw(world, canvas);
       requestAnimationFrame(tick);
     };
 
@@ -28,50 +32,46 @@
   exports.start = start; // make start function available to HTML page
 
   // rotates the lines, moves and bounces the circles
-  function update(circles, lines, canvas) {
-    for (var i = circles.length - 1; i >= 0; i--) {
-      for (var j = 0; j < lines.length; j++) {
-        bounceCircle(circles[i], lines[j]);
+  function update(world) {
+    for (var i = world.circles.length - 1; i >= 0; i--) {
+      for (var j = 0; j < world.lines.length; j++) {
+        bounceCircle(world.circles[i], world.lines[j]);
       }
 
-      moveCircle(circles[i]);
-      if (!isCircleOnCanvas(circles[i], canvas)) {
-        circles.splice(i, 1); // remove circles that have left screen
+      moveCircle(world.circles[i]);
+      if (!isCircleInWorld(world.circles[i], world.dimensions)) {
+        world.circles.splice(i, 1); // remove circles that have left screen
       }
     }
 
-    for (var i = 0; i < lines.length; i++) {
-      lines[i].angle += lines[i].rotateSpeed;
+    for (var i = 0; i < world.lines.length; i++) {
+      world.lines[i].angle += world.lines[i].rotateSpeed;
     }
   };
 
-  function draw(circles, lines, canvas) {
+  function draw(world, canvas) {
     var ctx = canvas.getContext('2d');
 
     // fill screen with white
     ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, world.dimensions.x, world.dimensions.y);
 
     // draw circles
-    for (var i = 0; i < circles.length; i++) {
-      drawCircle(circles[i], ctx);
+    for (var i = 0; i < world.circles.length; i++) {
+      drawCircle(world.circles[i], ctx);
     }
 
     // draw lines
-    for (var i = 0; i < lines.length; i++) {
-      drawLine(lines[i], ctx);
+    for (var i = 0; i < world.lines.length; i++) {
+      drawLine(world.lines[i], ctx);
     }
   };
 
-  function makeCircle(canvas) {
-    var radius = 7;
+  function makeCircle(x) {
     return {
-      center: {
-        x: canvas.width / 2,
-        y: -radius,
-      },
+      center: { x: x, y: -7 },
       velocity: { x: 0, y: 0 },
-      radius: radius
+      radius: 7
     };
   };
 
@@ -217,11 +217,11 @@
     circle.center.y = circle.center.y + circle.velocity.y / 30;
   };
 
-  function isCircleOnCanvas(circle, canvas) {
+  function isCircleInWorld(circle, worldDimensions) {
     return circle.center.x > -circle.radius &&
-      circle.center.x < canvas.width + circle.radius &&
+      circle.center.x < worldDimensions.x + circle.radius &&
       circle.center.y > -circle.radius &&
-      circle.center.y < canvas.height + circle.radius;
+      circle.center.y < worldDimensions.y + circle.radius;
   };
 })(this);
 
