@@ -168,7 +168,7 @@
 
     if (projection <= 0) {
       return lineEnd1; // off end of line - end is closest point
-    } else if (projection >= magnitude(lineVector)) {
+    } else if (projection >= line.span) {
       return lineEnd2; // ditto
     } else {
       // part way along line - return that point
