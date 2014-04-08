@@ -108,17 +108,17 @@
   // returns the points at the two ends of the passed line
   function lineEnds(line) {
     var angleRadians = line.angle * 0.01745;
-    var lineVector = unitVector({
+    var lineUnitVector = unitVector({
       x: Math.cos(angleRadians) * 0 - Math.sin(angleRadians) * -1,
       y: Math.sin(angleRadians) * 0 + Math.cos(angleRadians) * -1
     });
 
     return [{
-      x: line.center.x + lineVector.x * line.span / 2,
-      y: line.center.y + lineVector.y * line.span / 2
+      x: line.center.x + lineUnitVector.x * line.span / 2,
+      y: line.center.y + lineUnitVector.y * line.span / 2
     }, {
-      x: line.center.x - lineVector.x * line.span / 2,
-      y: line.center.y - lineVector.y * line.span / 2
+      x: line.center.x - lineUnitVector.x * line.span / 2,
+      y: line.center.y - lineUnitVector.y * line.span / 2
     }];
   };
 
