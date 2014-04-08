@@ -105,6 +105,13 @@
     return vector1.x * vector2.x + vector1.y * vector2.y;
   };
 
+  function vectorBetween(startPoint, endPoint) {
+    return {
+      x: endPoint.x - startPoint.x,
+      y: endPoint.y - startPoint.y
+    };
+  };
+
   // returns the points at the two ends of the passed line
   function lineEndPoints(line) {
     var angleRadians = line.angle * 0.01745;
@@ -150,21 +157,12 @@
     var lineEndPoint2 = lineEndPoints(line)[1];
 
     // vector representing line surface
-    var lineVector = {
-      x: lineEndPoint2.x - lineEndPoint1.x,
-      y: lineEndPoint2.y - lineEndPoint1.y
-    };
-    var lineUnitVector = unitVector(lineVector);
+    var lineUnitVector = unitVector(vectorBetween(lineEndPoint1, lineEndPoint2));
 
-    var lineEndPoint1ToCircle = {
-      x: circle.center.x - lineEndPoint1.x,
-      y: circle.center.y - lineEndPoint1.y
-    };
-
-    // project vector between line end and circle along
-    // line to get distance between end and point
-    // on line closest to circle
-    var projection = dotProduct(lineEndPoint1ToCircle, lineUnitVector);
+    // project vector between line end and circle along line to get
+    // distance between end and point on line closest to circle
+    var projection = dotProduct(vectorBetween(lineEndPoint1, circle.center),
+                                lineUnitVector);
 
     if (projection <= 0) {
       return lineEndPoint1; // off end of line - end is closest point
@@ -193,10 +191,7 @@
 
     // get normal of surface to bounce circle off
     var closest = pointOnLineClosestToCircle(circle, line);
-    var normal = unitVector({
-      x: circle.center.x - closest.x,
-      y: circle.center.y - closest.y
-    });
+    var normal = unitVector(vectorBetween(closest, circle.center));
 
     // set new circle velocity by reflecting old velocity in
     // the normal to the surface the circle is bouncing off
