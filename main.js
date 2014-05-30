@@ -33,10 +33,10 @@
   function update(world) {
     for (var i = world.circles.length - 1; i >= 0; i--) {
       for (var j = 0; j < world.lines.length; j++) {
-        bounceCircle(world.circles[i], world.lines[j]);
+        physics.bounceCircle(world.circles[i], world.lines[j]);
       }
 
-      moveCircle(world.circles[i]);
+      physics.moveCircle(world.circles[i]);
       if (!isCircleInWorld(world.circles[i], world.dimensions)) {
         world.circles.splice(i, 1); // remove circles that have left screen
       }
@@ -87,8 +87,8 @@
       angle: 0,
       rotateSpeed: 0.5,
       draw: function(screen) {
-        var end1 = lineEndPoints(this)[0];
-        var end2 = lineEndPoints(this)[1];
+        var end1 = trig.lineEndPoints(this)[0];
+        var end2 = trig.lineEndPoints(this)[1];
 
         screen.beginPath();
         screen.lineWidth = 2;
@@ -102,122 +102,128 @@
     };
   };
 
-  function distance(point1, point2) {
-    var x = Math.abs(point1.x - point2.x);
-    var y = Math.abs(point1.y - point2.y);
-    return Math.sqrt((x * x) + (y * y));
-  };
-
-  function magnitude(vector) {
-    return Math.sqrt(vector.x * vector.x + vector.y* vector.y);
-  };
-
-  function unitVector(vector) {
-    return {
-      x: vector.x / magnitude(vector),
-      y: vector.y / magnitude(vector)
-    };
-  };
-
-  function dotProduct(vector1, vector2) {
-    return vector1.x * vector2.x + vector1.y * vector2.y;
-  };
-
-  function vectorBetween(startPoint, endPoint) {
-    return {
-      x: endPoint.x - startPoint.x,
-      y: endPoint.y - startPoint.y
-    };
-  };
-
-  // returns the points at the two ends of the passed line
-  function lineEndPoints(line) {
-    var angleRadians = line.angle * 0.01745;
-    var lineUnitVector = unitVector({
-      x: Math.cos(angleRadians) * 0 - Math.sin(angleRadians) * -1,
-      y: Math.sin(angleRadians) * 0 + Math.cos(angleRadians) * -1
-    });
-
-    return [{
-      x: line.center.x + lineUnitVector.x * line.span / 2,
-      y: line.center.y + lineUnitVector.y * line.span / 2
-    }, {
-      x: line.center.x - lineUnitVector.x * line.span / 2,
-      y: line.center.y - lineUnitVector.y * line.span / 2
-    }];
-  };
-
-  // returns point on passed line closest to passed circle
-  function pointOnLineClosestToCircle(circle, line) {
-    var lineEndPoint1 = lineEndPoints(line)[0];
-    var lineEndPoint2 = lineEndPoints(line)[1];
-
-    // vector representing line surface
-    var lineUnitVector = unitVector(vectorBetween(lineEndPoint1, lineEndPoint2));
-
-    // project vector between line end and circle along line to get
-    // distance between end and point on line closest to circle
-    var projection = dotProduct(vectorBetween(lineEndPoint1, circle.center),
-                                lineUnitVector);
-
-    if (projection <= 0) {
-      return lineEndPoint1; // off end of line - end is closest point
-    } else if (projection >= line.span) {
-      return lineEndPoint2; // ditto
-    } else {
-      // part way along line - return that point
-      return {
-        x: lineEndPoint1.x + lineUnitVector.x * projection,
-        y: lineEndPoint1.y + lineUnitVector.y * projection
-      };
-    }
-  };
-
-  function isCircleIntersectingLine(circle, line) {
-    var closest = pointOnLineClosestToCircle(circle, line);
-    var circleToLineDistance = distance(circle.center, closest);
-    return circleToLineDistance < circle.radius;
-  };
-
-  // bounces circle off line
-  function bounceCircle(circle, line) {
-    var lineNormal = bounceNormal(circle, line);
-    if (lineNormal === undefined) return; // line not touching circle - no bounce
-
-    // set new circle velocity by reflecting old velocity in
-    // the normal to the surface the circle is bouncing off
-    var dot = dotProduct(circle.velocity, lineNormal);
-    circle.velocity.x = circle.velocity.x - 2 * dot * lineNormal.x;
-    circle.velocity.y = circle.velocity.y - 2 * dot * lineNormal.y;
-
-    // move circle until outside line
-    while (isCircleIntersectingLine(circle, line)) {
-      moveCircle(circle);
-    }
-  };
-
-  // if line intersecting circle, returns normal to use to bounce circle
-  function bounceNormal(circle, line) {
-    if (isCircleIntersectingLine(circle, line)) {
-      return unitVector(vectorBetween(pointOnLineClosestToCircle(circle, line),
-                                      circle.center));
-    }
-  };
-
-  // move passed circle based on its current speed
-  function moveCircle(circle) {
-    // simulate gravity
-    circle.velocity.y = circle.velocity.y + 2;
-
-    // move according to current velocity
-    circle.center.x = circle.center.x + circle.velocity.x / 30;
-    circle.center.y = circle.center.y + circle.velocity.y / 30;
-  };
-
   function isCircleInWorld(circle, worldDimensions) {
     return circle.center.x > -circle.radius &&
       circle.center.x < worldDimensions.x + circle.radius &&
       circle.center.y > -circle.radius &&
       circle.center.y < worldDimensions.y + circle.radius;
+  };
+
+  var trig = {
+    distance: function(point1, point2) {
+      var x = Math.abs(point1.x - point2.x);
+      var y = Math.abs(point1.y - point2.y);
+      return Math.sqrt((x * x) + (y * y));
+    },
+
+    magnitude: function(vector) {
+      return Math.sqrt(vector.x * vector.x + vector.y* vector.y);
+    },
+
+    unitVector: function(vector) {
+      return {
+        x: vector.x / trig.magnitude(vector),
+        y: vector.y / trig.magnitude(vector)
+      };
+    },
+
+    dotProduct: function(vector1, vector2) {
+      return vector1.x * vector2.x + vector1.y * vector2.y;
+    },
+
+    vectorBetween: function(startPoint, endPoint) {
+      return {
+        x: endPoint.x - startPoint.x,
+        y: endPoint.y - startPoint.y
+      };
+    },
+
+    // returns the points at the two ends of the passed line
+    lineEndPoints: function(line) {
+      var angleRadians = line.angle * 0.01745;
+      var lineUnitVector = trig.unitVector({
+        x: Math.cos(angleRadians) * 0 - Math.sin(angleRadians) * -1,
+        y: Math.sin(angleRadians) * 0 + Math.cos(angleRadians) * -1
+      });
+
+      return [{
+        x: line.center.x + lineUnitVector.x * line.span / 2,
+        y: line.center.y + lineUnitVector.y * line.span / 2
+      }, {
+        x: line.center.x - lineUnitVector.x * line.span / 2,
+        y: line.center.y - lineUnitVector.y * line.span / 2
+      }];
+    },
+
+    // returns point on passed line closest to passed circle
+    pointOnLineClosestToCircle: function(circle, line) {
+      var lineEndPoint1 = trig.lineEndPoints(line)[0];
+      var lineEndPoint2 = trig.lineEndPoints(line)[1];
+
+      // vector representing line surface
+      var lineUnitVector = trig.unitVector(
+        trig.vectorBetween(lineEndPoint1, lineEndPoint2));
+
+      // project vector between line end and circle along line to get
+      // distance between end and point on line closest to circle
+      var projection = trig.dotProduct(trig.vectorBetween(lineEndPoint1, circle.center),
+                                       lineUnitVector);
+
+      if (projection <= 0) {
+        return lineEndPoint1; // off end of line - end is closest point
+      } else if (projection >= line.span) {
+        return lineEndPoint2; // ditto
+      } else {
+        // part way along line - return that point
+        return {
+          x: lineEndPoint1.x + lineUnitVector.x * projection,
+          y: lineEndPoint1.y + lineUnitVector.y * projection
+        };
+      }
+    },
+
+    isCircleIntersectingLine: function(circle, line) {
+      var closest = trig.pointOnLineClosestToCircle(circle, line);
+      var circleToLineDistance = trig.distance(circle.center, closest);
+      return circleToLineDistance < circle.radius;
+    }
+  }
+
+  var physics = {
+    // move passed circle based on its current speed
+    moveCircle: function(circle) {
+      // simulate gravity
+      circle.velocity.y = circle.velocity.y + 2;
+
+      // move according to current velocity
+      circle.center.x = circle.center.x + circle.velocity.x / 30;
+      circle.center.y = circle.center.y + circle.velocity.y / 30;
+    },
+
+    // bounces circle off line
+    bounceCircle: function(circle, line) {
+      var lineNormal = physics.bounceNormal(circle, line);
+      if (lineNormal === undefined) return; // line not touching circle - no bounce
+
+      // set new circle velocity by reflecting old velocity in
+      // the normal to the surface the circle is bouncing off
+      var dot = trig.dotProduct(circle.velocity, lineNormal);
+      circle.velocity.x = circle.velocity.x - 2 * dot * lineNormal.x;
+      circle.velocity.y = circle.velocity.y - 2 * dot * lineNormal.y;
+
+      // move circle until outside line
+      while (trig.isCircleIntersectingLine(circle, line)) {
+        physics.moveCircle(circle);
+      }
+    },
+
+    // if line intersecting circle, returns normal to use to bounce circle
+    bounceNormal: function(circle, line) {
+      if (trig.isCircleIntersectingLine(circle, line)) {
+        return trig.unitVector(trig.vectorBetween(
+          trig.pointOnLineClosestToCircle(circle, line),
+          circle.center));
+      }
+    }
   };
 })(this);
