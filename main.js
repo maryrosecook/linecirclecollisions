@@ -219,9 +219,3 @@
       circle.center.y < worldDimensions.y + circle.radius;
   };
 })(this);
-
-
-// concepts will learn:
-// - detecting line circle collisions
-// - line normals
-// - bouncing off arbitrarily angled surfaces
