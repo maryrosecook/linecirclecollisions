@@ -4,13 +4,9 @@
     var world = {
       circles: [],
       lines: [],
-      dimensions: { x: canvas.width, y: canvas.height }
+      dimensions: { x: canvas.width, y: canvas.height },
+      lastCircleMade: 0
     };
-
-    // make new circle every so often
-    setInterval(function() {
-      world.circles.push(makeCircle(world.dimensions.x / 2));
-    }, 400);
 
     // make grid of lines
     for (var i = 1; i < 6; i++) {
@@ -46,6 +42,13 @@
 
     for (var i = 0; i < world.lines.length; i++) {
       world.lines[i].angle += world.lines[i].rotateSpeed;
+    }
+
+    // occasionally make a circle
+    var now = new Date().getTime();
+    if (now - world.lastCircleMade > 400) {
+      world.circles.push(makeCircle(world.dimensions.x / 2));
+      world.lastCircleMade = now;
     }
   };
 
