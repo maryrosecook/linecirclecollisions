@@ -1,7 +1,7 @@
 ;(function(exports) {
   // creates lines and circles and starts the animation
   function start(canvas) {
-    var ctx = canvas.getContext('2d');
+    var screen = canvas.getContext('2d');
 
     var world = {
       circles: [],
@@ -21,7 +21,7 @@
     // move shapes, draw shapes
     function tick() {
       update(world);
-      draw(world, ctx);
+      draw(world, screen);
       requestAnimationFrame(tick); // queues next tick with browser
     };
 
@@ -54,14 +54,14 @@
     }
   };
 
-  function draw(world, ctx) {
+  function draw(world, screen) {
     // fill screen with white
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, world.dimensions.x, world.dimensions.y);
+    screen.fillStyle = "white";
+    screen.fillRect(0, 0, world.dimensions.x, world.dimensions.y);
 
     var bodies = world.circles.concat(world.lines);
     for (var i = 0; i < bodies.length; i++) {
-      bodies[i].draw(ctx);
+      bodies[i].draw(screen);
     }
   };
 
@@ -70,12 +70,12 @@
       center: { x: x, y: -7 },
       velocity: { x: 0, y: 0 },
       radius: 7,
-      draw: function(ctx) {
-        ctx.beginPath();
-        ctx.arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2, true);
-        ctx.closePath();
-        ctx.fillStyle = "black";
-        ctx.fill();
+      draw: function(screen) {
+        screen.beginPath();
+        screen.arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2, true);
+        screen.closePath();
+        screen.fillStyle = "black";
+        screen.fill();
       }
     };
   };
@@ -86,18 +86,18 @@
       span: 80,
       angle: 0,
       rotateSpeed: 0.5,
-      draw: function(ctx) {
+      draw: function(screen) {
         var end1 = lineEndPoints(this)[0];
         var end2 = lineEndPoints(this)[1];
 
-        ctx.beginPath();
-        ctx.lineWidth = 2;
-        ctx.moveTo(end1.x, end1.y);
-        ctx.lineTo(end2.x, end2.y);
-        ctx.closePath();
+        screen.beginPath();
+        screen.lineWidth = 2;
+        screen.moveTo(end1.x, end1.y);
+        screen.lineTo(end2.x, end2.y);
+        screen.closePath();
 
-        ctx.strokeStyle = "black";
-        ctx.stroke();
+        screen.strokeStyle = "black";
+        screen.stroke();
       }
     };
   };
