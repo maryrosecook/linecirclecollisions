@@ -185,23 +185,26 @@
 
   // bounces circle off line
   function bounceCircle(circle, line) {
-    if (!isCircleIntersectingLine(circle, line)) {
-      return; // line not touching circle - no bounce
-    }
-
-    // get normal of surface to bounce circle off
-    var closest = pointOnLineClosestToCircle(circle, line);
-    var normal = unitVector(vectorBetween(closest, circle.center));
+    var lineNormal = bounceNormal(circle, line);
+    if (lineNormal === undefined) return; // line not touching circle - no bounce
 
     // set new circle velocity by reflecting old velocity in
     // the normal to the surface the circle is bouncing off
-    var dot = dotProduct(circle.velocity, normal);
-    circle.velocity.x = circle.velocity.x - 2 * dot * normal.x;
-    circle.velocity.y = circle.velocity.y - 2 * dot * normal.y;
+    var dot = dotProduct(circle.velocity, lineNormal);
+    circle.velocity.x = circle.velocity.x - 2 * dot * lineNormal.x;
+    circle.velocity.y = circle.velocity.y - 2 * dot * lineNormal.y;
 
     // move circle until outside line
     while (isCircleIntersectingLine(circle, line)) {
       moveCircle(circle);
+    }
+  };
+
+  // if line intersecting circle, returns normal to use to bounce circle
+  function bounceNormal(circle, line) {
+    if (isCircleIntersectingLine(circle, line)) {
+      return unitVector(vectorBetween(pointOnLineClosestToCircle(circle, line),
+                                      circle.center));
     }
   };
 
