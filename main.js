@@ -59,14 +59,9 @@
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, world.dimensions.x, world.dimensions.y);
 
-    // draw circles
-    for (var i = 0; i < world.circles.length; i++) {
-      drawCircle(world.circles[i], ctx);
-    }
-
-    // draw lines
-    for (var i = 0; i < world.lines.length; i++) {
-      drawLine(world.lines[i], ctx);
+    var bodies = world.circles.concat(world.lines);
+    for (var i = 0; i < bodies.length; i++) {
+      bodies[i].draw(ctx);
     }
   };
 
@@ -74,7 +69,14 @@
     return {
       center: { x: x, y: -7 },
       velocity: { x: 0, y: 0 },
-      radius: 7
+      radius: 7,
+      draw: function(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = "black";
+        ctx.fill();
+      }
     };
   };
 
@@ -83,7 +85,20 @@
       center: { x: x, y: y },
       span: 80,
       angle: 0,
-      rotateSpeed: 0.5
+      rotateSpeed: 0.5,
+      draw: function(ctx) {
+        var end1 = lineEndPoints(this)[0];
+        var end2 = lineEndPoints(this)[1];
+
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.moveTo(end1.x, end1.y);
+        ctx.lineTo(end2.x, end2.y);
+        ctx.closePath();
+
+        ctx.strokeStyle = "black";
+        ctx.stroke();
+      }
     };
   };
 
@@ -130,28 +145,6 @@
       x: line.center.x - lineUnitVector.x * line.span / 2,
       y: line.center.y - lineUnitVector.y * line.span / 2
     }];
-  };
-
-  function drawLine(line, ctx) {
-    var end1 = lineEndPoints(line)[0];
-    var end2 = lineEndPoints(line)[1];
-
-    ctx.beginPath();
-    ctx.lineWidth = 2;
-    ctx.moveTo(end1.x, end1.y);
-    ctx.lineTo(end2.x, end2.y);
-    ctx.closePath();
-
-    ctx.strokeStyle = "black";
-    ctx.stroke();
-  };
-
-  function drawCircle(circle, ctx) {
-    ctx.beginPath();
-    ctx.arc(circle.center.x, circle.center.y, circle.radius, 0, Math.PI * 2, true);
-    ctx.closePath();
-    ctx.fillStyle = "black";
-    ctx.fill();
   };
 
   // returns point on passed line closest to passed circle
