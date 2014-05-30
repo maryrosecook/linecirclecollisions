@@ -78,8 +78,8 @@
   function makeLine(x, y) {
     return {
       center: { x: x, y: y },
-      span: 40,
       angle: Math.random() * 360,
+      span: 80,
       rotateSpeed: 0.5
     };
   };
