@@ -1,6 +1,8 @@
 ;(function(exports) {
   // creates lines and circles and starts the animation
   function start(canvas) {
+    var ctx = canvas.getContext('2d');
+
     var world = {
       circles: [],
       lines: [],
@@ -19,7 +21,7 @@
     // move shapes, draw shapes
     function tick() {
       update(world);
-      draw(world, canvas);
+      draw(world, ctx);
       requestAnimationFrame(tick); // queues next tick with browser
     };
 
@@ -52,9 +54,7 @@
     }
   };
 
-  function draw(world, canvas) {
-    var ctx = canvas.getContext('2d');
-
+  function draw(world, ctx) {
     // fill screen with white
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, world.dimensions.x, world.dimensions.y);
