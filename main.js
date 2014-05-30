@@ -15,7 +15,7 @@
     // make grid of lines
     for (var i = 1; i < 6; i++) {
       for (var j = 1; j < 6; j++) {
-        world.lines.push(makeLine(i * 80, j * 80, i * j));
+        world.lines.push(makeLine(i * 80, j * 80));
       }
     }
     world.lines.splice(10, 2); // throw away top center lines
@@ -78,8 +78,8 @@
   function makeLine(x, y) {
     return {
       center: { x: x, y: y },
-      angle: Math.random() * 360,
       span: 80,
+      angle: 0,
       rotateSpeed: 0.5
     };
   };
